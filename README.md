@@ -1,2 +1,2 @@
-# woocommerce-trexle-payments-gateways
+# woo-trexle
 WooCommerce Extension for Trexle
