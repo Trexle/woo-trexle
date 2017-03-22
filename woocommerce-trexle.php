@@ -476,11 +476,11 @@ function woocommerce_trexle_payments_init() {
 
 
 	if ( class_exists( 'WC_Subscriptions_Order' ) ) {
-		include_once( 'woocommerce-trexle-payments-subscriptions.php' );
+		include_once( 'woocommerce-trexle-subscriptions.php' );
 
 		// Support for WooCommerce Subscriptions 1.n
 		if ( ! function_exists( 'wcs_create_renewal_order' ) ) {
-			include_once( 'woocommerce-trexle-payments-subscriptions-deprecated.php' );
+			include_once( 'woocommerce-trexle-subscriptions-deprecated.php' );
 		}
 	}
 
