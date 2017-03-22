@@ -4,11 +4,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * WC_Gateway_Pin_Payments_Subscriptions class (Deprecated - for Subscriptions v1.x)
+ * WC_Gateway_Trexle_Payments_Subscriptions class (Deprecated - for Subscriptions v1.x)
  * 
- * @extends WC_Gateway_Pin_Payments_Subscriptions
+ * @extends WC_Gateway_Trexle_Payments_Subscriptions
  */
-class WC_Gateway_Pin_Payments_Subscriptions_Deprecated extends WC_Gateway_Pin_Payments_Subscriptions {
+class WC_Gateway_Trexle_Payments_Subscriptions_Deprecated extends WC_Gateway_Trexle_Payments_Subscriptions {
 
 	function __construct() { 
 	
@@ -36,17 +36,17 @@ class WC_Gateway_Pin_Payments_Subscriptions_Deprecated extends WC_Gateway_Pin_Pa
 			$customer_token = false;
 
 			// Are we paying by customer token?
-			if ( isset( $_POST['pin_customer_token'] ) && $_POST['pin_customer_token'] !== 'new' && is_user_logged_in() ) {
-				$customer_tokens = get_user_meta( get_current_user_id(), '_pin_customer_token', false );
+			if ( isset( $_POST['Trexle_customer_token'] ) && $_POST['Trexle_customer_token'] !== 'new' && is_user_logged_in() ) {
+				$customer_tokens = get_user_meta( get_current_user_id(), '_Trexle_customer_token', false );
 
-				if ( isset( $customer_tokens[ $_POST['pin_customer_token'] ]['customer_token'] ) ) {
-					$customer_token = $customer_tokens[ $_POST['pin_customer_token'] ]['customer_token'];
+				if ( isset( $customer_tokens[ $_POST['Trexle_customer_token'] ]['customer_token'] ) ) {
+					$customer_token = $customer_tokens[ $_POST['Trexle_customer_token'] ]['customer_token'];
 				} else {
-					wc_add_notice(__('Invalid card. ', 'woo_pin_payments'),'error');
+					wc_add_notice(__('Invalid card. ', 'woo_Trexle_payments'),'error');
 					return;
 				}
 			} elseif (empty($card_token)) {
-				wc_add_notice(__('Please make sure your card details have been entered correctly and that your browser supports JavaScript.', 'woo_pin_payments' ),'error');
+				wc_add_notice(__('Please make sure your card details have been entered correctly and that your browser supports JavaScript.', 'woo_Trexle_payments' ),'error');
 		        return;
 			}
 
@@ -76,7 +76,7 @@ class WC_Gateway_Pin_Payments_Subscriptions_Deprecated extends WC_Gateway_Pin_Pa
 				WC_Subscriptions_Manager::activate_subscriptions_for_order( $order );
 
 				if ( $customer_token )
-					update_post_meta( $order->id, '_pin_customer_token', $customer_token );
+					update_post_meta( $order->id, '_Trexle_customer_token', $customer_token );
 
 	    		if (is_woocommerce_pre_2_1()) {
 	    			$redirect = add_query_arg('key', $order->order_key, add_query_arg('order', $order_id, get_permalink(get_option('woocommerce_thanks_page_id'))));
@@ -134,10 +134,10 @@ class WC_Gateway_Pin_Payments_Subscriptions_Deprecated extends WC_Gateway_Pin_Pa
 		$product = $order->get_product_from_item( array_shift( $order_items ) );
 		$subscription_name = sprintf( __( '%s - Order #%s', 'woocommerce' ), esc_html( get_bloginfo( 'name', 'display' ) ), $order->get_order_number() );
 		
-		$customer_token = get_post_meta( $order->id, '_pin_customer_token', true );
+		$customer_token = get_post_meta( $order->id, '_Trexle_customer_token', true );
 		
 		if ( ! $customer_token ) 
-			return new WP_Error( 'pin_error', __( 'Customer token is missing.', 'woo_pin_payments' ) );
+			return new WP_Error( 'Trexle_error', __( 'Customer token is missing.', 'woo_Trexle_payments' ) );
 		
 		$currency = get_post_meta($order->id,'_order_currency',true);
 		if (!$currency || empty($currency)) $currency = get_woocommerce_currency();
@@ -151,17 +151,17 @@ class WC_Gateway_Pin_Payments_Subscriptions_Deprecated extends WC_Gateway_Pin_Pa
 	    	'customer_token'=>$customer_token
 	    	);
 	    
-	    $result = $this->call_pin($post_data,'charges');
+	    $result = $this->call_Trexle($post_data,'charges');
 			
 		if ( is_wp_error($result) ) {
 			return $result;
 		} elseif (!isset($result->response->success)) {
-			return new WP_Error( 'pin_error', sprintf(__('Pin Payment error: %s','woo_pin_payments', 'woo_pin_payments' ),$result->error_description));
+			return new WP_Error( 'Trexle_error', sprintf(__('Trexle Payment error: %s','woo_Trexle_payments', 'woo_Trexle_payments' ),$result->error_description));
 		} elseif (isset($result->response->success) && $result->response->success != 1) {
-			return new WP_Error( 'pin_error', sprintf(__('Pin Payment error: %s', 'woo_pin_payments') ,$result->response->error_message));
+			return new WP_Error( 'Trexle_error', sprintf(__('Trexle Payment error: %s', 'woo_Trexle_payments') ,$result->response->error_message));
 		} else {
 			$order->payment_complete($result->response->token);
-			$order->add_order_note(sprintf(__('Pin Payments subscription payment completed (Charge ID: %s)','woo_pin_payments'),$result->response->token));
+			$order->add_order_note(sprintf(__('Trexle Payments subscription payment completed (Charge ID: %s)','woo_Trexle_payments'),$result->response->token));
 			return true;
 		}
 
@@ -180,7 +180,7 @@ class WC_Gateway_Pin_Payments_Subscriptions_Deprecated extends WC_Gateway_Pin_Pa
 		
 		// If we have a customer id, use it for the order
 		if ( $customer_token ) {
-			update_post_meta( $order->id, '_pin_customer_token', $customer_token );
+			update_post_meta( $order->id, '_Trexle_customer_token', $customer_token );
 		}
 		
 		// If we have a token, we can create a customer with it
@@ -190,12 +190,12 @@ class WC_Gateway_Pin_Payments_Subscriptions_Deprecated extends WC_Gateway_Pin_Pa
 				'card_token'=>$card_token
 				);
 
-			$result = $this->call_pin($post_data,'customers');
+			$result = $this->call_Trexle($post_data,'customers');
 			
 			if ( is_wp_error($result) ) {
 				return $result;
 			} elseif (isset($result->response->token) && !empty($result->response->token)) {
-				$order->add_order_note( sprintf( __('Pin customer added: %s', 'woo_pin_payments' ), $result->response->token ) );
+				$order->add_order_note( sprintf( __('Trexle customer added: %s', 'woo_Trexle_payments' ), $result->response->token ) );
 
 				if ( is_user_logged_in() ) {
 					$customer_token = array(
@@ -204,17 +204,17 @@ class WC_Gateway_Pin_Payments_Subscriptions_Deprecated extends WC_Gateway_Pin_Pa
 						'scheme'=>$result->response->card->scheme,
 						'email'=>$result->response->email
 					);
-					add_user_meta( get_current_user_id(), '_pin_customer_token', $customer_token);
+					add_user_meta( get_current_user_id(), '_Trexle_customer_token', $customer_token);
 				}
 
-				update_post_meta( $order->id, '_pin_customer_token', $result->response->token );
+				update_post_meta( $order->id, '_Trexle_customer_token', $result->response->token );
 				return $result->response->token;
 			}
 		}
 	}
 
 	/**
-	 * Don't transfer Pin Payments customer/token meta when creating a parent renewal order.
+	 * Don't transfer Trexle Payments customer/token meta when creating a parent renewal order.
 	 * 
 	 * @access public
 	 * @param array $order_meta_query MySQL query for pulling the metadata
@@ -226,7 +226,7 @@ class WC_Gateway_Pin_Payments_Subscriptions_Deprecated extends WC_Gateway_Pin_Pa
 	function remove_renewal_order_meta( $order_meta_query, $original_order_id, $renewal_order_id, $new_order_role ) {
 
 		if ( 'parent' == $new_order_role )
-			$order_meta_query .= " AND `meta_key` NOT LIKE '_pin_customer_token' ";
+			$order_meta_query .= " AND `meta_key` NOT LIKE '_Trexle_customer_token' ";
 
 		return $order_meta_query;
 	}
@@ -240,6 +240,6 @@ class WC_Gateway_Pin_Payments_Subscriptions_Deprecated extends WC_Gateway_Pin_Pa
 	 * @return void
 	 */
 	function update_failing_payment_method( $original_order, $new_renewal_order ) {
-		update_post_meta( $original_order->id, '_pin_customer_token', get_post_meta( $new_renewal_order->id, '_pin_customer_token', true ) );
+		update_post_meta( $original_order->id, '_Trexle_customer_token', get_post_meta( $new_renewal_order->id, '_Trexle_customer_token', true ) );
 	}
 }
