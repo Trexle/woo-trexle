@@ -3,7 +3,7 @@
 Plugin Name: WooCommerce Trexle Payments Gateways
 Plugin URI: https://trexle.com
 Description: Use Trexle Payments Gateways to process credit cards for WooCommerce.
-Version: 1.0
+Version: 1.1
 Author: Hossam Hossny
 Author URI: https://hoss.am/
 
@@ -356,7 +356,7 @@ function woocommerce_trexle_payments_init() {
 			$response = wp_remote_post( $this->trexle_url.$action , array(
    				'method'		=> 'POST',
    				'headers' => array(
-					'Authorization' => 'Basic ' . base64_encode( ':' . $secret_key )
+					'Authorization' => 'Basic ' . base64_encode( $secret_key . ':' )
 				),
     			'body' 			=> $post_data,
     			'timeout' 		=> 70,
