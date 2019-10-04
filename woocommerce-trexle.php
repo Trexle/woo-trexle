@@ -313,7 +313,8 @@ function woocommerce_trexle_payments_init() {
 
             } else {
             	// Errored
-            	$order->add_order_note(sprintf(__('Trexle Payments error: %s', 'woo_trexle_payments'), $result->error_description));
+            	$error_description = (isset($result->error_description)) ? $result->error_description : "";
+		$order->add_order_note(sprintf(__('Trexle Payments error: %s', 'woo_trexle_payments'), $error_description));
                 wc_add_notice(__('Payment error: ', 'woo_trexle_payments') . $result->error_description,'error');
             }
 	        return array(
